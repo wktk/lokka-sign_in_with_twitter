@@ -1,0 +1,51 @@
+%h2 Sign in with Twitter
+%h3 User Settings
+%form{action: '/admin/plugins/sign_in_with_twitter/add_user', method: :post}
+  .field
+    %label{for: :username} @username to associate with #{current_user.name}
+    %br/
+    %input{type: :text, id: :username, name: :username, placeholder: :username}
+  .field
+    %input{type: :submit, value: 'Add'}
+%h4 Manage users
+%table
+  %tr
+    %th Twitter ID
+    %th Comment
+    %th Delete
+  - ids = sign_in_with_twitter_ids
+  - if ids.empty?
+    %tr
+      %td -
+      %td There is no Twitter accounts associated with #{current_user.name}
+      %td -
+  - ids.each_pair do |twitter_id, comment|
+    %tr
+      %td= twitter_id
+      %td
+        %form{action: '/admin/plugins/sign_in_with_twitter/update_comment', method: :post}
+          %input{type: :hidden, name: :twitter_id, value: twitter_id}
+          %input{type: :text, name: :t_comment, value: comment, style: 'width: 20em'}
+          %input{type: :submit, value: 'Update'}
+      %td
+        %form{action: '/admin/plugins/sign_in_with_twitter/delete_user', method: :post}
+          %input{type: :hidden, name: :twitter_id, value: twitter_id}
+          %input{type: :submit, value: 'Delete'}
+%hr
+%h3 Consumer Settings
+%p Changes to consumer settings affect all users on the system.
+%form{action: '/admin/plugins/sign_in_with_twitter', method: :post}
+  .field
+    %label{for: :consumer_key} Consumer Key
+    %br/
+    %input{type: :text, id: :consumer_key, name: :consumer_key, value: Option.sign_in_with_twitter_ckey}
+  .field
+    %label{for: :consumer_secret} Consumer Secret
+    %br/
+    %input{type: :text, id: :consumer_secret, name: :consumer_secret, value: Option.sign_in_with_twitter_csec}
+  .field
+    %label{for: :callback_url} Callback URL
+    %br/
+    %p{id: :callback_url}= to('/sign_in_with_twitter/callback')
+  .field
+    %input{type: :submit ,value: t('edit')}
