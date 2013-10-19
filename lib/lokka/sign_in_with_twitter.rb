@@ -7,6 +7,11 @@ require 'uri'
 module Lokka
   module SignInWithTwitter
     def self.registered(app)
+      # Override to add a login button
+      app.get '/admin/login' do
+        haml :'plugin/lokka-sign_in_with_twitter/views/login', layout: false
+      end
+
       app.get '/sign_in_with_twitter' do
         request_token = sign_in_with_twitter_consumer.get_request_token(
           oauth_callback: to('/sign_in_with_twitter/callback')
@@ -36,7 +41,7 @@ module Lokka
           end
         else
           @login_failed = true
-          haml :'admin/login', layout: false
+          haml :'plugin/lokka-sign_in_with_twitter/views/login', layout: false
         end
       end
 
@@ -52,11 +57,11 @@ module Lokka
       end
 
       app.post '/admin/plugins/sign_in_with_twitter/add_user' do
-        # Retrieve a user object from Twitter
+        # Get a user object from Twitter
         query = '?screen_name=' + CGI.escape(params[:username].gsub(/\W/, ''))
         user = sign_in_with_twitter_get('/1.1/users/show.json' + query)
 
-        # Check for duplicate
+        # Check if the user already exists
         if sign_in_with_twitter_find(user['id_str'])
           flash[:notice] = 'Sorry, this user has already been associated'
           redirect to('/admin/plugins/sign_in_with_twitter')
